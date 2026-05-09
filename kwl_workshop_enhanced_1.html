@@ -618,7 +618,6 @@
     transition: all 0.25s;
   }
 
-  .btn-print { background: linear-gradient(135deg, var(--gold), #FFA500); color: #1A1A2E; }
   .btn-reset { background: var(--surface); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); }
   .btn-admin {
     background: linear-gradient(135deg, #2d1b69, #4c1d95);
@@ -891,7 +890,7 @@
   @media print {
     body { background: white; color: #111; }
     .bg-art, .actions, .add-note-form, .instruction-bar, .workshop-badge,
-    .delete-btn, .locked-overlay, .unlock-btn, .welcome-banner,
+    .edit-btn, .locked-overlay, .unlock-btn, .welcome-banner,
     #admin-modal, #pass-modal, #gateway-screen { display: none !important; }
     .wrapper { max-width: 100%; padding: 1rem; }
     h1 { color: #111; -webkit-text-fill-color: #111; }
@@ -902,6 +901,41 @@
   }
 
   /* Confetti */
+  /* Gate admin button */
+  .gate-admin-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin: 1rem 0 0.8rem;
+    color: rgba(144,144,176,0.4);
+    font-size: 0.75rem;
+  }
+  .gate-admin-divider::before, .gate-admin-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,0.07);
+  }
+  .gate-admin-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: transparent;
+    border: 1px solid rgba(167,139,250,0.25);
+    border-radius: 12px;
+    color: #a78bfa;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .gate-admin-btn:hover {
+    background: rgba(167,139,250,0.08);
+    border-color: rgba(167,139,250,0.5);
+    transform: translateY(-2px);
+  }
+
   .confetti { position: fixed; pointer-events: none; z-index: 9999; }
   .confetti-piece {
     position: absolute;
@@ -939,6 +973,11 @@
     />
     <button id="enter-btn" onclick="enterWorkshop()">🚀 دخول الورشة</button>
     <div id="gate-error"></div>
+
+    <div class="gate-admin-divider">
+      <span>أو</span>
+    </div>
+    <button class="gate-admin-btn" onclick="openPassModal()">⚙️ لوحة التحكم — المشرف</button>
   </div>
 </div>
 
@@ -1012,6 +1051,12 @@
 
     <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
       <button class="btn-clear-section" style="border-color:rgba(255,107,107,0.5);padding:0.7rem 1.5rem;font-size:0.9rem;" onclick="clearAll()">⚠️ مسح جميع الإجابات</button>
+    </div>
+
+    <hr class="admin-divider">
+
+    <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+      <button onclick="adminPrint()" style="padding:0.8rem 2rem;background:linear-gradient(135deg,#b7791f,#d97706);border:none;border-radius:14px;color:white;font-family:'Tajawal',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:0.5rem;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">🖨️ طباعة / حفظ PDF</button>
     </div>
   </div>
 </div>
@@ -1117,9 +1162,7 @@
     </div>
 
     <div class="actions">
-      <button class="action-btn btn-print" onclick="window.print()">🖨️ طباعة / حفظ PDF</button>
       <button class="action-btn btn-reset" onclick="resetAll()">🔄 إعادة تعيين</button>
-      <button class="action-btn btn-admin" onclick="openPassModal()">⚙️ لوحة التحكم</button>
     </div>
 
     <footer>
@@ -1391,6 +1434,11 @@
 
   function closeAdmin() {
     document.getElementById('admin-modal').classList.remove('open');
+  }
+
+  function adminPrint() {
+    closeAdmin();
+    setTimeout(() => window.print(), 300);
   }
 
   function refreshAdminView() {
