@@ -984,6 +984,7 @@
 <!-- ===================== PASSWORD MODAL ===================== -->
 <div id="pass-modal">
   <div class="pass-box">
+    <span class="pass-icon">🛡️</span>
     <div class="pass-title">لوحة التحكم</div>
     <div class="pass-sub">أدخلي كلمة السر للوصول</div>
     <input type="password" id="pass-input" placeholder="كلمة السر..." />
@@ -1176,6 +1177,51 @@
 
   // ============ STATE ============
   const state = { k: [], w: [], l: [], locked: true };
+
+  // ─── FIREBASE SYNC ────────────────────────────────────────────────────────
+  const FB = 'https://schoolproject-97946-default-rtdb.firebaseio.com/kwl_workshop';
+
+  // Push entire state to Firebase (debounced)
+  let _syncTimer = null;
+  function fbSync() {
+    clearTimeout(_syncTimer);
+    _syncTimer = setTimeout(() => {
+      fetch(FB + '.json', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ k: state.k, w: state.w, l: state.l, locked: state.locked })
+      }).catch(e => console.warn('Firebase sync error:', e));
+    }, 400);
+  }
+
+  // Load state from Firebase on startup
+  async function fbLoad() {
+    try {
+      const r = await fetch(FB + '.json');
+      const d = await r.json();
+      if (d && typeof d === 'object') {
+        if (Array.isArray(d.k)) state.k = d.k;
+        if (Array.isArray(d.w)) state.w = d.w;
+        if (Array.isArray(d.l)) state.l = d.l;
+        if (typeof d.locked === 'boolean') state.locked = d.locked;
+        // Re-render all notes from Firebase
+        ['k','w','l'].forEach(col => {
+          document.getElementById('entries-' + col).innerHTML = '';
+          state[col].forEach(e => renderNote(col, e.name, e.text));
+        });
+        updateCounts();
+        // Restore lock state
+        if (!state.locked) {
+          document.getElementById('locked-overlay').classList.add('unlocked');
+          const lf = document.getElementById('l-form');
+          lf.style.display = 'flex';
+          lf.style.flexDirection = 'column';
+          lf.style.gap = '0.6rem';
+        }
+      }
+    } catch(e) { console.warn('Firebase load error:', e); }
+  }
+  // ─────────────────────────────────────────────────────────────────────────
   let currentUserName = '';
 
   // ============ STARS ============
@@ -1221,6 +1267,7 @@
       main.classList.add('visible');
       document.getElementById('user-name-display').textContent = name;
       init();
+      fbLoad();
     }, 650);
 
     launchConfetti();
@@ -1289,6 +1336,7 @@
       <span class="note-text">${newText}</span>
     `;
     if (document.getElementById('admin-modal').classList.contains('open')) refreshAdminView();
+    fbSync();
   }
 
   function cancelEdit(btn, col) {
@@ -1310,6 +1358,7 @@
     updateCounts();
     input.focus();
     if (document.getElementById('admin-modal').classList.contains('open')) refreshAdminView();
+    fbSync();
   }
 
   function removeNote(btn, col) {
@@ -1323,6 +1372,7 @@
     setTimeout(() => note.remove(), 200);
     updateCounts();
     if (document.getElementById('admin-modal').classList.contains('open')) refreshAdminView();
+    fbSync();
   }
 
   function updateCounts() {
@@ -1339,6 +1389,7 @@
     lf.style.flexDirection = 'column';
     lf.style.gap = '0.6rem';
     launchConfetti();
+    fbSync();
   }
 
   function resetAll() {
@@ -1352,6 +1403,7 @@
     document.getElementById('l-form').style.display = 'none';
     updateCounts();
     init();
+    fbSync();
   }
 
   // Enter to submit
@@ -1485,6 +1537,7 @@
     }
     updateCounts();
     refreshAdminView();
+    fbSync();
   }
 
   function clearSection(col) {
@@ -1493,6 +1546,7 @@
     document.getElementById(`entries-${col}`).innerHTML = '';
     updateCounts();
     refreshAdminView();
+    fbSync();
   }
 
   function clearAll() {
@@ -1503,6 +1557,7 @@
     });
     updateCounts();
     refreshAdminView();
+    fbSync();
   }
 
   // Close admin when clicking outside panel
