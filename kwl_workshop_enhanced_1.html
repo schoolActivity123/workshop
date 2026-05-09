@@ -971,7 +971,7 @@
       autocomplete="off"
       maxlength="40"
     />
-    <button id="enter-btn" onclick="enterWorkshop()">🚀 دخول التحدي</button>
+    <button id="enter-btn" onclick="enterWorkshop()">🚀 دخول</button>
     <div id="gate-error"></div>
 
     <div class="gate-admin-divider">
@@ -984,6 +984,7 @@
 <!-- ===================== PASSWORD MODAL ===================== -->
 <div id="pass-modal">
   <div class="pass-box">
+    
     <div class="pass-title">لوحة التحكم</div>
     <div class="pass-sub">أدخلي كلمة السر للوصول</div>
     <input type="password" id="pass-input" placeholder="كلمة السر..." />
@@ -1477,13 +1478,60 @@
   });
 
   // ============ ADMIN PANEL ============
+  let _adminPollTimer = null;
+
+  async function adminFbRefresh() {
+    try {
+      const r = await fetch(FB + '.json');
+      const d = await r.json();
+      if (d && typeof d === 'object') {
+        let changed = false;
+        ['k','w','l'].forEach(col => {
+          if (Array.isArray(d[col])) {
+            const prev = JSON.stringify(state[col]);
+            const next = JSON.stringify(d[col]);
+            if (prev !== next) { state[col] = d[col]; changed = true; }
+          }
+        });
+        if (typeof d.locked === 'boolean' && d.locked !== state.locked) {
+          state.locked = d.locked;
+          if (!state.locked) {
+            document.getElementById('locked-overlay').classList.add('unlocked');
+            const lf = document.getElementById('l-form');
+            lf.style.display = 'flex';
+            lf.style.flexDirection = 'column';
+            lf.style.gap = '0.6rem';
+          } else {
+            document.getElementById('locked-overlay').classList.remove('unlocked');
+            document.getElementById('l-form').style.display = 'none';
+          }
+          changed = true;
+        }
+        if (changed) {
+          // Re-render visual board
+          ['k','w','l'].forEach(col => {
+            document.getElementById('entries-' + col).innerHTML = '';
+            state[col].forEach(e => renderNote(col, e.name, e.text));
+          });
+          updateCounts();
+          refreshAdminView();
+        }
+      }
+    } catch(e) { console.warn('Admin poll error:', e); }
+  }
+
   function openAdmin() {
     refreshAdminView();
     document.getElementById('admin-modal').classList.add('open');
+    // Start real-time polling every 3 seconds
+    _adminPollTimer = setInterval(adminFbRefresh, 3000);
   }
 
   function closeAdmin() {
     document.getElementById('admin-modal').classList.remove('open');
+    // Stop polling
+    clearInterval(_adminPollTimer);
+    _adminPollTimer = null;
   }
 
   function adminPrint() {
