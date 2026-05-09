@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#060d1f;
+  --bg2:#0a1428;
+  --gold:#f5c842;
+  --gold2:#e8a820;
+  --teal:#00d4aa;
+  --teal2:#00a07e;
+  --pink:#ff6b9d;
+  --purple:#8b6fcf;
+  --glass:rgba(255,255,255,0.05);
+  --glass2:rgba(255,255,255,0.09);
+  --border:rgba(255,255,255,0.1);
+  --text:#e8eaf6;
+  --muted:rgba(232,234,246,0.55);
+}
+body{font-family:'Tajawal','Cairo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;direction:rtl}
+.bg-fx{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.star{position:absolute;border-radius:50%;background:white;animation:twinkle var(--d,3s) ease-in-out infinite var(--delay,0s)}
+@keyframes twinkle{0%,100%{opacity:0.2;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+.nebula{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 10% 50%,rgba(139,111,207,0.12) 0%,transparent 50%),
+  radial-gradient(ellipse at 90% 20%,rgba(0,212,170,0.08) 0%,transparent 50%),
+  radial-gradient(ellipse at 50% 90%,rgba(255,107,157,0.06) 0%,transparent 40%)}
+.wrap{position:relative;z-index:1}
+
+/* SCREENS */
+.screen{display:none;min-height:100vh}
+.screen.show{display:block}
+
+/* SPLASH */
+#s-splash{display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2.5rem 1.5rem;min-height:100vh}
+#s-splash.show{display:flex}
+.logo-ring{width:110px;height:110px;border-radius:28px;background:linear-gradient(135deg,#1a1a2e,#16213e);border:2px solid rgba(245,200,66,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 2rem;box-shadow:0 0 60px rgba(245,200,66,0.25),0 0 120px rgba(245,200,66,0.08);animation:logoFloat 3s ease-in-out infinite,fadeUp 0.7s ease both}
+@keyframes logoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.logo-ring svg{width:60px;height:60px}
+.splash-title{font-family:'Cairo',sans-serif;font-size:clamp(1.8rem,5vw,3rem);font-weight:900;color:var(--gold);line-height:1.25;margin-bottom:.5rem;animation:fadeUp .7s .1s ease both}
+.splash-sub{color:var(--muted);font-size:1rem;margin-bottom:2.5rem;animation:fadeUp .7s .2s ease both}
+.btn-glow{background:linear-gradient(135deg,var(--teal),var(--teal2));color:#060d1f;font-family:'Cairo',sans-serif;font-weight:700;font-size:1.05rem;border:none;border-radius:50px;padding:.9rem 2.2rem;cursor:pointer;transition:all .3s;display:inline-flex;align-items:center;gap:.5rem;animation:fadeUp .7s .3s ease both}
+.btn-glow:hover{transform:translateY(-3px);box-shadow:0 15px 40px rgba(0,212,170,0.35)}
+.btn-ghost{background:transparent;color:var(--purple);font-family:'Cairo',sans-serif;font-weight:600;font-size:.95rem;border:1px solid rgba(139,111,207,0.3);border-radius:50px;padding:.75rem 1.8rem;cursor:pointer;transition:all .3s;margin-top:.75rem;animation:fadeUp .7s .4s ease both;display:block;margin-left:auto;margin-right:auto}
+.btn-ghost:hover{background:rgba(139,111,207,0.1);border-color:var(--purple)}
+
+/* PAGE HEADER */
+.ph{display:flex;align-items:center;gap:1rem;padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(6,13,31,0.9);backdrop-filter:blur(20px);z-index:10}
+.ph h2{font-family:'Cairo',sans-serif;font-size:1.2rem;font-weight:700;color:var(--gold)}
+.back{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:50%;width:38px;height:38px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.back:hover{border-color:var(--teal);color:var(--teal)}
+
+/* NUMBER PICK */
+.inner{max-width:640px;margin:0 auto;padding:1.5rem}
+.card{background:var(--glass);border:1px solid var(--border);border-radius:20px;padding:2rem}
+.card-title{font-family:'Cairo',sans-serif;font-size:1.3rem;font-weight:700;color:var(--gold);margin-bottom:.4rem}
+.card-sub{color:var(--muted);font-size:.9rem;margin-bottom:1.5rem}
+.num-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;margin-bottom:1.25rem}
+.num-btn{aspect-ratio:1;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Cairo',sans-serif;font-size:1.15rem;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.num-btn:hover:not(.taken){background:rgba(0,212,170,0.12);border-color:var(--teal);color:var(--teal)}
+.num-btn.taken{opacity:.28;cursor:not-allowed}
+.num-btn.mine{background:rgba(0,212,170,0.18);border-color:var(--teal);color:var(--teal)}
+.info-box{background:rgba(0,212,170,0.08);border:1px solid rgba(0,212,170,0.25);border-radius:12px;padding:1rem;margin-bottom:1.25rem;color:var(--teal);font-size:.95rem;text-align:center;font-weight:600}
+.fgroup{margin-bottom:1rem}
+.fgroup label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:.4rem}
+.finput{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;color:var(--text);font-family:'Tajawal',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;direction:rtl}
+.finput:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,212,170,0.08)}
+.btn-main{width:100%;background:linear-gradient(135deg,var(--teal),var(--teal2));color:#060d1f;font-family:'Cairo',sans-serif;font-weight:700;font-size:1rem;border:none;border-radius:12px;padding:.9rem;cursor:pointer;transition:all .3s;margin-top:.5rem}
+.btn-main:hover{opacity:.9;transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,212,170,0.3)}
+.btn-purple{width:100%;background:linear-gradient(135deg,var(--purple),#6a52b0);color:#fff;font-family:'Cairo',sans-serif;font-weight:700;font-size:1rem;border:none;border-radius:12px;padding:.9rem;cursor:pointer;transition:all .3s;margin-top:.75rem}
+.btn-purple:hover{opacity:.9;transform:translateY(-2px);box-shadow:0 12px 30px rgba(139,111,207,0.3)}
+
+/* PROGRESS */
+.prog-bar{height:5px;background:rgba(255,255,255,0.08);border-radius:3px;margin-bottom:1.75rem;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--purple));border-radius:3px;transition:width .5s ease}
+
+/* OPTIONS */
+.opts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.65rem;margin-bottom:1.25rem}
+.opt{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:.85rem .75rem;cursor:pointer;transition:all .22s;color:var(--text);font-family:'Tajawal',sans-serif;font-size:.9rem;text-align:center}
+.opt:hover{background:rgba(0,212,170,0.1);border-color:var(--teal)}
+.opt.sel{background:rgba(0,212,170,0.15);border-color:var(--teal);color:var(--teal);box-shadow:0 0 18px rgba(0,212,170,0.12)}
+.q-num{font-size:.8rem;color:var(--teal);letter-spacing:1px;margin-bottom:.5rem;text-transform:uppercase}
+.q-title{font-family:'Cairo',sans-serif;font-size:1.25rem;font-weight:700;color:var(--gold);margin-bottom:.3rem}
+.q-sub{color:var(--muted);font-size:.88rem;margin-bottom:1.5rem}
+.row-btns{display:flex;gap:.65rem;margin-top:1.25rem}
+.btn-sec{flex:1;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Cairo',sans-serif;font-weight:600;font-size:.9rem;border-radius:10px;padding:.75rem;cursor:pointer;transition:all .2s}
+.btn-sec:hover{border-color:var(--muted);color:var(--text)}
+.btn-next{flex:2;background:linear-gradient(135deg,var(--teal),var(--teal2));color:#060d1f;font-family:'Cairo',sans-serif;font-weight:700;font-size:.95rem;border:none;border-radius:10px;padding:.75rem;cursor:pointer;transition:all .3s}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(0,212,170,0.25)}
+
+/* PROMPT RESULT */
+.prompt-box{background:linear-gradient(135deg,rgba(139,111,207,0.12),rgba(0,212,170,0.08));border:1px solid rgba(0,212,170,0.28);border-radius:14px;padding:1.25rem;margin-bottom:1.25rem}
+.prompt-box textarea{width:100%;background:transparent;border:none;color:var(--text);font-family:'Tajawal',sans-serif;font-size:.95rem;line-height:1.9;resize:vertical;outline:none;min-height:110px;direction:rtl}
+.sah-box{background:rgba(245,200,66,0.06);border:1px solid rgba(245,200,66,0.18);border-radius:14px;padding:1.25rem;margin-bottom:1.25rem}
+.sah-title{font-family:'Cairo',sans-serif;font-size:.95rem;font-weight:700;color:var(--gold);margin-bottom:.75rem}
+.sah-item{font-size:.88rem;color:var(--muted);padding:4px 0;display:flex;align-items:flex-start;gap:.5rem}
+.sah-item::before{content:"✨";flex-shrink:0}
+
+/* SUCCESS */
+.success-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;text-align:center;padding:2rem}
+.big-emoji{font-size:5rem;margin-bottom:1rem;animation:pop .5s ease}
+@keyframes pop{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+.final-tip{background:linear-gradient(135deg,rgba(245,200,66,0.08),rgba(0,212,170,0.08));border:1px solid rgba(245,200,66,0.2);border-radius:14px;padding:1.25rem;margin-top:1.5rem;text-align:center;font-size:.9rem;line-height:1.8;color:var(--muted)}
+.final-tip strong{color:var(--gold)}
+
+/* PEERS */
+.peer-card{background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:.85rem}
+.peer-name{font-family:'Cairo',sans-serif;font-weight:700;color:var(--text);margin-bottom:.2rem}
+.peer-spec{font-size:.82rem;color:var(--teal);margin-bottom:.75rem}
+.peer-prompt{font-size:.88rem;color:var(--text);line-height:1.75;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:.75rem}
+
+/* GROUPS VIEW */
+.groups-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.25rem;padding:1.5rem;max-width:1000px;margin:0 auto}
+.group-card{background:var(--glass);border:1px solid var(--border);border-radius:18px;padding:1.5rem;text-align:center}
+.group-num{font-family:'Cairo',sans-serif;font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.5rem}
+.leader-badge{font-size:.8rem;color:var(--gold);padding:3px 12px;background:rgba(245,200,66,0.1);border-radius:20px;display:inline-block;margin:.4rem 0}
+.member-li{font-size:.88rem;color:var(--text);padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.member-li:last-child{border:none}
+.member-li.leader{color:var(--gold);font-weight:600}
+
+/* ADMIN */
+.admin-wrap{max-width:900px;margin:0 auto;padding:1.5rem}
+.admin-grp-title{font-family:'Cairo',sans-serif;font-size:1rem;font-weight:700;color:var(--purple);margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:1px solid rgba(139,111,207,0.2)}
+.admin-entry{background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:1.1rem;margin-bottom:.75rem}
+.admin-entry-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}
+.admin-entry-name{font-family:'Cairo',sans-serif;font-weight:700;color:var(--text)}
+.admin-entry-meta{font-size:.78rem;color:var(--muted)}
+.admin-entry-prompt{font-size:.88rem;color:var(--text);line-height:1.75;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:.75rem}
+.badge-count{background:rgba(0,212,170,0.12);color:var(--teal);padding:3px 12px;border-radius:20px;font-size:.8rem;font-weight:600}
+.refresh-btn{background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.3);color:var(--teal);font-family:'Cairo',sans-serif;font-weight:600;font-size:.85rem;border-radius:8px;padding:.5rem 1rem;cursor:pointer;transition:all .2s}
+.refresh-btn:hover{background:rgba(0,212,170,0.18)}
+.empty{text-align:center;color:var(--muted);padding:3rem;font-size:1rem}
+
+/* TOAST */
+.toast{position:fixed;top:1.5rem;left:50%;transform:translateX(-50%);background:rgba(0,212,170,0.92);color:#060d1f;padding:.65rem 1.5rem;border-radius:50px;font-family:'Cairo',sans-serif;font-weight:700;z-index:9999;pointer-events:none;animation:toastIn .3s ease;white-space:nowrap}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--teal);animation:blink 1.2s infinite;margin-left:6px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* PASSWORD MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(6,13,31,0.88);backdrop-filter:blur(8px);z-index:9000;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+.modal-box{background:#0e1a2e;border:1px solid rgba(245,200,66,0.25);border-radius:20px;padding:2rem;width:100%;max-width:380px;text-align:center;animation:fadeUp .4s ease}
+.modal-box h3{font-family:'Cairo',sans-serif;font-size:1.3rem;font-weight:700;color:var(--gold);margin-bottom:.5rem}
+.modal-box p{color:var(--muted);font-size:.88rem;margin-bottom:1.25rem}
+.modal-box .finput{text-align:center;letter-spacing:3px;font-size:1.1rem}
+.modal-btns{display:flex;gap:.75rem;margin-top:1rem}
+.modal-cancel{flex:1;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Cairo',sans-serif;font-weight:600;border-radius:10px;padding:.75rem;cursor:pointer;transition:all .2s}
+.modal-cancel:hover{border-color:var(--muted);color:var(--text)}
+.modal-confirm{flex:2;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#060d1f;font-family:'Cairo',sans-serif;font-weight:700;border:none;border-radius:10px;padding:.75rem;cursor:pointer;transition:all .3s}
+.modal-confirm:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(245,200,66,0.3)}
+
+/* GROUP NAME BADGE */
+.group-name-badge{font-family:'Cairo',sans-serif;font-size:1rem;font-weight:700;color:var(--teal);margin:.25rem 0 .5rem}
+
+/* CRUD BUTTONS */
+.crud-bar{display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap}
+.btn-edit{background:rgba(245,200,66,0.12);border:1px solid rgba(245,200,66,0.3);color:var(--gold);font-family:'Cairo',sans-serif;font-weight:600;font-size:.8rem;border-radius:8px;padding:.4rem .9rem;cursor:pointer;transition:all .2s}
+.btn-edit:hover{background:rgba(245,200,66,0.22)}
+.btn-del{background:rgba(255,107,157,0.1);border:1px solid rgba(255,107,157,0.3);color:var(--pink);font-family:'Cairo',sans-serif;font-weight:600;font-size:.8rem;border-radius:8px;padding:.4rem .9rem;cursor:pointer;transition:all .2s}
+.btn-del:hover{background:rgba(255,107,157,0.2)}
+.btn-del-user{background:rgba(255,70,70,0.1);border:1px solid rgba(255,70,70,0.3);color:#ff6464;font-family:'Cairo',sans-serif;font-weight:600;font-size:.8rem;border-radius:8px;padding:.4rem .9rem;cursor:pointer;transition:all .2s}
+.btn-del-user:hover{background:rgba(255,70,70,0.2)}
+.btn-danger{background:linear-gradient(135deg,rgba(255,70,70,0.15),rgba(255,107,157,0.1));border:1px solid rgba(255,70,70,0.35);color:#ff6464;font-family:'Cairo',sans-serif;font-weight:700;font-size:.88rem;border-radius:10px;padding:.6rem 1.2rem;cursor:pointer;transition:all .2s}
+.btn-danger:hover{background:rgba(255,70,70,0.25);transform:translateY(-1px)}
+.admin-top-bar{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;margin-bottom:1.5rem;padding:1rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:14px}
+.admin-top-bar h3{font-family:'Cairo',sans-serif;font-size:1rem;color:var(--muted);margin-left:auto}
+.edit-area{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(245,200,66,0.3);border-radius:10px;padding:.75rem;color:var(--text);font-family:'Tajawal',sans-serif;font-size:.88rem;line-height:1.8;resize:vertical;outline:none;min-height:90px;margin-top:.6rem;direction:rtl}
+.edit-area:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,200,66,0.08)}
+.btn-save{background:linear-gradient(135deg,var(--teal),var(--teal2));color:#060d1f;font-family:'Cairo',sans-serif;font-weight:700;font-size:.82rem;border:none;border-radius:8px;padding:.45rem 1rem;cursor:pointer;transition:all .2s;margin-top:.5rem}
+.btn-save:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,212,170,0.28)}
+.confirm-modal{position:fixed;inset:0;background:rgba(6,13,31,0.9);backdrop-filter:blur(6px);z-index:9100;display:none;align-items:center;justify-content:center;padding:1.5rem}
+.confirm-modal.open{display:flex}
+.confirm-box{background:#0e1a2e;border:1px solid rgba(255,107,157,0.3);border-radius:18px;padding:2rem;width:100%;max-width:360px;text-align:center;animation:fadeUp .35s ease}
+.confirm-box h3{font-family:'Cairo',sans-serif;font-size:1.2rem;font-weight:700;color:var(--pink);margin-bottom:.5rem}
+.confirm-box p{color:var(--muted);font-size:.88rem;margin-bottom:1.5rem;line-height:1.7}
+.confirm-btns{display:flex;gap:.75rem}
+.confirm-no{flex:1;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Cairo',sans-serif;font-weight:600;border-radius:10px;padding:.7rem;cursor:pointer}
+.confirm-yes{flex:1;background:linear-gradient(135deg,#ff4444,#cc2222);color:#fff;font-family:'Cairo',sans-serif;font-weight:700;border:none;border-radius:10px;padding:.7rem;cursor:pointer;transition:all .2s}
+.confirm-yes:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(255,50,50,0.35)}
+</style>
+</head>
+<body>
+<div class="bg-fx" id="bgFx"></div>
+<div class="nebula"></div>
+<div class="wrap">
+
+<!-- SPLASH -->
+<div id="s-splash" class="screen show">
+  <div class="logo-ring">
+    <svg viewBox="0 0 80 80" fill="none">
+      <circle cx="40" cy="40" r="38" stroke="#f5c842" stroke-width="1.5" stroke-dasharray="4 3" opacity=".4"/>
+      <g transform="translate(40,40)">
+        <line x1="0" y1="-22" x2="0" y2="22" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="-22" y1="0" x2="22" y2="0" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="-15.6" y1="-15.6" x2="15.6" y2="15.6" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="15.6" y1="-15.6" x2="-15.6" y2="15.6" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="0" cy="0" r="5" fill="var(--gold)"/>
+      </g>
+    </svg>
+  </div>
+  <h1 class="splash-title">اكتشفي أسرار<br>الذكاء الاصطناعي<br>مع Claude AI</h1>
+  <p class="splash-sub">ورشة تعليمية تفاعلية — تحدّي كتابة البرومت</p>
+  <button class="btn-glow" onclick="go('s-numpick')">✨ ابدأي الورشة ✨</button>
+  <button class="btn-ghost" onclick="askAdminPass()">⚙️ لوحة التحكم – المشرف</button>
+</div>
+
+<!-- NUMBER PICK -->
+<div id="s-numpick" class="screen">
+  <div class="ph">
+    <button class="back" onclick="go('s-splash')">←</button>
+    <h2>🎯 اختاري رقمك</h2>
+  </div>
+  <div class="inner">
+    <div class="card">
+      <div class="card-title">اختاري رقمًا من 1 إلى 20</div>
+      <div class="card-sub">ستُضمَّين تلقائيًا إلى مجموعة من 4 معلمات</div>
+      <div class="num-grid" id="numGrid"></div>
+      <div id="numInfo" style="display:none">
+        <div class="info-box" id="infoText"></div>
+        <div class="fgroup">
+          <label>🌟 اسمكِ الكريم</label>
+          <input class="finput" id="inp-name" type="text" placeholder="اسمك هنا...">
+        </div>
+        <div class="fgroup">
+          <label>📚 تخصصكِ / مادتكِ</label>
+          <input class="finput" id="inp-spec" type="text" placeholder="مثال: معلمة رياضيات، لغة عربية...">
+        </div>
+        <button class="btn-main" onclick="register()">🚀 دخول الورشة</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ACTIVITY -->
+<div id="s-activity" class="screen">
+  <div class="ph">
+    <button class="back" onclick="go('s-numpick')">←</button>
+    <h2 id="act-title">نشاط بناء البرومت</h2>
+  </div>
+  <div class="inner">
+    <div class="prog-bar"><div class="prog-fill" id="prog"></div></div>
+    <div id="qArea"></div>
+  </div>
+</div>
+
+<!-- PROMPT RESULT -->
+<div id="s-result" class="screen">
+  <div class="ph">
+    <button class="back" onclick="goStep(3)">←</button>
+    <h2>🎯 برومتكِ الاحترافي</h2>
+  </div>
+  <div class="inner">
+    <div class="card">
+      <div class="card-title" style="margin-bottom:1rem">✅ تمّ بناء برومتكِ!</div>
+      <div class="prompt-box">
+        <textarea id="finalTxt" rows="6"></textarea>
+      </div>
+      <div class="sah-box">
+        <div class="sah-title">🔮 قسم الصحصحة — اقتراحات لتحسين برومتكِ</div>
+        <div id="sahItems"></div>
+      </div>
+      <button class="btn-purple" onclick="sendPrompt()">📤 إرسال النسخة النهائية للقائدة</button>
+    </div>
+  </div>
+</div>
+
+<!-- SENT SUCCESS -->
+<div id="s-sent" class="screen">
+  <div class="inner">
+    <div class="success-wrap">
+      <div class="big-emoji">🎉</div>
+      <h2 style="font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:900;color:var(--gold);margin-bottom:.75rem">تمّ الإرسال بنجاح!</h2>
+      <p style="color:var(--muted);max-width:380px;line-height:1.8">وصل برومتكِ إلى قائدة مجموعتكِ. يمكنكِ الآن مشاهدة إجابات زميلاتكِ.</p>
+      <button class="btn-glow" style="margin-top:1.5rem;justify-content:center" onclick="showPeers()">👁️ مشاهدة إجابات الزميلات</button>
+      <div class="final-tip">
+        💡 <strong>تذكّري:</strong> هذا القالب يمكن استخدامه لأي مادة دراسية بمجرد تغيير كلمات بسيطة!<br>
+        جرّبيه مع مواد مختلفة وستدهشكِ النتائج ✨
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PEERS VIEW -->
+<div id="s-peers" class="screen">
+  <div class="ph">
+    <button class="back" onclick="go('s-sent')">←</button>
+    <h2>👩‍🏫 إجابات زميلاتي في المجموعة</h2>
+  </div>
+  <div class="inner" id="peersList"></div>
+</div>
+
+<!-- GROUPS VIEW -->
+<div id="s-groups" class="screen">
+  <div class="ph">
+    <button class="back" onclick="go('s-splash')">←</button>
+    <h2>👥 توزيع المجموعات</h2>
+    <button class="refresh-btn" style="margin-right:auto" onclick="loadGroups()">🔄 تحديث</button>
+  </div>
+  <div class="groups-grid" id="groupsGrid"></div>
+</div>
+
+<!-- ADMIN -->
+<div id="s-admin" class="screen">
+  <div class="ph">
+    <button class="back" onclick="go('s-splash')">←</button>
+    <h2>⚙️ لوحة التحكم</h2>
+    <span class="badge-count" id="adminCount">0</span>
+    <div class="live-dot"></div>
+    <button class="refresh-btn" style="margin-right:auto" onclick="loadAdmin()">🔄 تحديث</button>
+  </div>
+  <div class="admin-wrap">
+    <div class="admin-top-bar">
+      <h3>إدارة البيانات</h3>
+      <button class="btn-danger" onclick="confirmAction('clearAll','','')">🗑️ مسح جميع البيانات</button>
+      <button class="refresh-btn" onclick="exportData()">📥 تصدير JSON</button>
+    </div>
+    <div id="adminGrid"><div class="empty">جارٍ التحميل...</div></div>
+  </div>
+</div>
+
+</div>
+
+<!-- CONFIRM MODAL -->
+<div id="confirmModal" class="confirm-modal">
+  <div class="confirm-box">
+    <div style="font-size:2.5rem;margin-bottom:.75rem" id="confirmEmoji">⚠️</div>
+    <h3 id="confirmTitle">تأكيد الحذف</h3>
+    <p id="confirmMsg">هل أنتِ متأكدة؟</p>
+    <div class="confirm-btns">
+      <button class="confirm-no" onclick="closeConfirm()">إلغاء</button>
+      <button class="confirm-yes" id="confirmYesBtn">تأكيد</button>
+    </div>
+  </div>
+</div>
+
+<!-- PASSWORD MODAL -->
+<div id="passModal" class="modal-overlay" style="display:none">
+  <div class="modal-box">
+    <div style="font-size:2.5rem;margin-bottom:.75rem">🔐</div>
+    <h3>لوحة التحكم</h3>
+    <p>أدخلي كلمة المرور للوصول إلى لوحة المشرف</p>
+    <input class="finput" id="passInput" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPass()">
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closePassModal()">إلغاء</button>
+      <button class="modal-confirm" onclick="checkPass()">🔓 دخول</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── STARS ───────────────────────────────────────────────────────────────────
+(function(){
+  const c=document.getElementById('bgFx');
+  for(let i=0;i<80;i++){
+    const s=document.createElement('div');
+    s.className='star';
+    const sz=Math.random()*2+.5;
+    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${Math.random()*4}s;opacity:${.1+Math.random()*.6}`;
+    c.appendChild(s);
+  }
+})();
+
+// ─── ADMIN PASSWORD ──────────────────────────────────────────────────────────
+const ADMIN_PASS = 'claude2025';
+
+function askAdminPass(){
+  document.getElementById('passModal').style.display='flex';
+  setTimeout(()=>document.getElementById('passInput').focus(),100);
+}
+function closePassModal(){
+  document.getElementById('passModal').style.display='none';
+  document.getElementById('passInput').value='';
+}
+function checkPass(){
+  const v=document.getElementById('passInput').value.trim();
+  if(v===ADMIN_PASS){closePassModal();go('s-admin');}
+  else{toast('كلمة المرور غير صحيحة! 🚫');document.getElementById('passInput').value='';}
+}
+
+// ─── GROUP NAMES ─────────────────────────────────────────────────────────────
+const GROUP_NAMES=['مجموعة المبدعات 🌟','مجموعة المبتكرات 💡','مجموعة الرائدات 🚀','مجموعة الذكيّات 🧠','مجموعة النخبة ✨'];
+function groupName(g){return GROUP_NAMES[(g-1)%GROUP_NAMES.length];}
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+const DB_KEY='ws_v5';
+let me=null, selNum=null, step=0;
+const ans={task:'',subject:'',lesson:'',grade:'',format:'',groupType:''};
+
+function db(){try{return JSON.parse(localStorage.getItem(DB_KEY))||{u:{},p:{}}}catch{return{u:{},p:{}}}}
+function save(d){localStorage.setItem(DB_KEY,JSON.stringify(d))}
+function grp(n){return Math.ceil(n/4)}
+function leader(g){return(g-1)*4+1}
+
+// ─── NAV ──────────────────────────────────────────────────────────────────────
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show'));
+  const el=document.getElementById(id);
+  if(el)el.classList.add('show');
+  if(id==='s-admin')loadAdmin();
+  if(id==='s-numpick')buildGrid();
+  if(id==='s-groups')loadGroups();
+  window.scrollTo(0,0);
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+function toast(msg){
+  const t=document.createElement('div');
+  t.className='toast';t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2200);
+}
+
+// ─── NUM GRID ────────────────────────────────────────────────────────────────
+function buildGrid(){
+  const d=db();
+  const taken=Object.values(d.u).map(u=>u.num);
+  const g=document.getElementById('numGrid');
+  g.innerHTML='';
+  for(let i=1;i<=20;i++){
+    const b=document.createElement('button');
+    b.className='num-btn'+(taken.includes(i)?' taken':'');
+    b.textContent=i;
+    b.disabled=taken.includes(i);
+    b.onclick=()=>pickNum(i);
+    g.appendChild(b);
+  }
+  document.getElementById('numInfo').style.display='none';
+  selNum=null;
+}
+
+function pickNum(n){
+  selNum=n;
+  document.querySelectorAll('.num-btn').forEach((b,i)=>b.classList.toggle('mine',i+1===n));
+  const g=grp(n),l=leader(g);
+  document.getElementById('infoText').textContent=
+    n===l?`ستكونين في ${groupName(g)} ⭐ أنتِ قائدة المجموعة!`
+         :`ستكونين في ${groupName(g)} • قائدة مجموعتكِ: رقم ${l}`;
+  document.getElementById('numInfo').style.display='block';
+  document.getElementById('numInfo').scrollIntoView({behavior:'smooth'});
+}
+
+function register(){
+  const name=document.getElementById('inp-name').value.trim();
+  const spec=document.getElementById('inp-spec').value.trim();
+  if(!selNum)return toast('اختاري رقمًا أولًا!');
+  if(!name)return toast('اكتبي اسمكِ الكريم!');
+  if(!spec)return toast('اكتبي تخصصكِ!');
+  const d=db();
+  if(d.u[selNum])return toast('هذا الرقم محجوز، اختاري رقمًا آخر!');
+  const g=grp(selNum),l=leader(g);
+  me={num:selNum,name,spec,group:g,isLeader:selNum===l};
+  d.u[selNum]=me; save(d);
+  toast(`أهلًا ${name}! انضممتِ إلى ${groupName(g)} 🎉`);
+  setTimeout(()=>startActivity(),700);
+}
+
+// ─── ACTIVITY STEPS ──────────────────────────────────────────────────────────
+const steps=[
+  {id:'task',num:'السؤال 1',title:'ماذا تريدين أن يصمّم لكِ Claude.ai؟',sub:'اختاري نوع النشاط التعليمي',type:'single',
+   opts:['🎮 لعبة تفاعلية','💡 نشاط تفاعلي','📖 قصة تعليمية','🖱️ سحب وإفلات','📋 ترتيب خطوات','✏️ اختبار تقييمي','🔬 محاكاة تفاعلية','🗺️ خريطة ذهنية','🃏 بطاقات تعليمية','✨ غيرها']},
+  {id:'content',num:'السؤال 2',title:'ما هو درسكِ؟',sub:'حدّدي المادة والدرس والمرحلة الدراسية',type:'text3',
+   fields:[{k:'subject',ph:'المادة (مثال: رياضيات، علوم، عربي...)'},
+           {k:'lesson',ph:'الدرس أو الوحدة (مثال: الكسور، النباتات...)'},
+           {k:'grade',ph:'المرحلة الدراسية (مثال: الصف الثالث ابتدائي...)'}]},
+  {id:'format',num:'السؤال 3',title:'كيف تريدين شكل النتيجة؟',sub:'اختاري تنسيق النشاط التعليمي',type:'single',
+   opts:['✍️ أكملي الفراغ','🖱️ سحب وإفلات','🔗 وصّلي / صلّي','🔘 اختيار من متعدد','✅ صح أو خطأ','📋 رتّبي الخطوات','🎤 أجيبي بصوتكِ']},
+  {id:'groupType',num:'السؤال 4',title:'نوع النشاط',sub:'كيف سيُنفَّذ النشاط داخل الفصل؟',type:'single',
+   opts:['🌈 مراعاة الفروق الفردية','👥 نشاط جماعي','👤 نشاط فردي','🔍 تعلّم بالاستقصاء','🤝 تعلّم تعاوني','⭐ نشاط إثرائي','💙 دعم ومعالجة']}
+];
+
+function startActivity(){step=0;go('s-activity');renderStep(0);}
+function goStep(i){step=i;renderStep(i);}
+
+function renderStep(i){
+  const s=steps[i];
+  if(!s){buildPrompt();return;}
+  document.getElementById('prog').style.width=(i/steps.length*100)+'%';
+  document.getElementById('act-title').textContent=`نشاط بناء البرومت — ${s.num}`;
+  let html=`<div class="card">
+    <div class="q-num">${s.num} من ${steps.length}</div>
+    <div class="q-title">${s.title}</div>
+    <div class="q-sub">${s.sub}</div>`;
+
+  if(s.type==='single'){
+    html+=`<div class="opts-grid">`;
+    s.opts.forEach(o=>{
+      const sel=ans[s.id]===o;
+      html+=`<button class="opt${sel?' sel':''}" onclick="pickOpt('${s.id}','${o.replace(/'/g,"\\'")}',this)">${o}</button>`;
+    });
+    html+=`</div>`;
+  } else if(s.type==='text3'){
+    s.fields.forEach(f=>{
+      html+=`<div class="fgroup"><input class="finput" id="tf_${f.k}" type="text" placeholder="${f.ph}" value="${ans[f.k]||''}" oninput="ans['${f.k}']=this.value"></div>`;
+    });
+  }
+
+  html+=`<div class="row-btns">`;
+  if(i>0)html+=`<button class="btn-sec" onclick="goStep(${i-1})">← السابق</button>`;
+  html+=`<button class="btn-next" onclick="nxt(${i})">التالي →</button>`;
+  html+=`</div></div>`;
+  document.getElementById('qArea').innerHTML=html;
+}
+
+function pickOpt(k,v,el){
+  ans[k]=v;
+  el.closest('.opts-grid').querySelectorAll('.opt').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function nxt(i){
+  const s=steps[i];
+  if(s.type==='single'&&!ans[s.id])return toast('اختاري إجابة أولًا!');
+  if(s.type==='text3'){
+    for(const f of s.fields){
+      ans[f.k]=document.getElementById('tf_'+f.k)?.value.trim()||ans[f.k]||'';
+      if(!ans[f.k])return toast('يُرجى ملء جميع الحقول!');
+    }
+  }
+  const msgs=['رائع! 🌟','ممتازة! ✨','أحسنتِ! 💪','مبدعة! 🎉'];
+  toast(msgs[i%4]);
+  step=i+1;
+  setTimeout(()=>renderStep(step),250);
+}
+
+function buildPrompt(){
+  document.getElementById('prog').style.width='100%';
+  const clean=s=>s.replace(/[🎮💡📖🖱️📋✏️🔬🗺️🃏✨✍️🔗🔘✅🎤🌈👥👤🔍🤝⭐💙]/g,'').trim();
+  const t=clean(ans.task||'نشاط');
+  const f=clean(ans.format||'');
+  const gt=clean(ans.groupType||'');
+  const prompt=`صمّمي ${t} تفاعلية لمادة ${ans.subject||'...'} عن درس "${ans.lesson||'...'}" للمرحلة ${ans.grade||'...'}. أريد أن يكون النشاط على شكل ${f}، وأن يكون ${gt}. يجب أن يتضمّن النشاط تغذية راجعة فورية للطالبة عند كل إجابة، ورسائل تعزيز وتشجيع، وأن يكون جذابًا بصريًا وسهل الاستخدام.`;
+  document.getElementById('finalTxt').value=prompt;
+
+  const sug=[];
+  if(!ans.subject?.match(/وطن|اجتماع|هوية/))sug.push('أضيفي لمسة من الهوية الوطنية لتعزيز الانتماء لدى الطالبات');
+  sug.push('اطلبي تغذية راجعة فورية ورسائل تشجيع عند كل إجابة');
+  if(ans.groupType?.includes('فردي'))sug.push('أضيفي مستويات صعوبة متدرّجة مراعاةً للفروق الفردية');
+  if(ans.task?.includes('لعبة'))sug.push('حدّدي عدد النقاط أو النجوم عند الإجابة الصحيحة لزيادة التحفيز');
+  sug.push('اطلبي أن تكون الألوان واضحة ومناسبة لعمر الطالبات');
+  if(ans.grade?.match(/أول|ثاني|ثالث|رابع/))sug.push('اطلبي تعليمات بسيطة ومشوّقة تناسب الصفوف الأولى');
+  sug.push('يمكنكِ تغيير المادة والدرس في أي وقت وإعادة استخدام نفس القالب!');
+
+  document.getElementById('sahItems').innerHTML=sug.map(s=>`<div class="sah-item">${s}</div>`).join('');
+  go('s-result');
+}
+
+function sendPrompt(){
+  const txt=document.getElementById('finalTxt').value.trim();
+  if(!txt)return toast('يُرجى كتابة البرومت!');
+  const d=db();
+  d.p[me.num]={name:me.name,spec:me.spec,group:me.group,isLeader:me.isLeader,prompt:txt,ts:Date.now()};
+  save(d); toast('تمّ الإرسال! 🎉');
+  setTimeout(()=>go('s-sent'),500);
+}
+
+function showPeers(){
+  const d=db();
+  const peers=Object.values(d.p).filter(p=>p.group===me.group&&p.name!==me.name);
+  const el=document.getElementById('peersList');
+  el.innerHTML=peers.length?peers.map(p=>`
+    <div class="peer-card">
+      <div class="peer-name">${p.name}${p.isLeader?' ⭐':''}</div>
+      <div class="peer-spec">${p.spec}</div>
+      <div class="peer-prompt">${p.prompt}</div>
+    </div>`).join('')
+  :`<div class="empty">⏳ لا توجد إجابات بعد من الزميلات — انتظري قليلًا!</div>`;
+  go('s-peers');
+}
+
+function loadGroups(){
+  const d=db();
+  const byG={};
+  Object.values(d.u).forEach(u=>{if(!byG[u.group])byG[u.group]=[];byG[u.group].push(u);});
+  const el=document.getElementById('groupsGrid');
+  if(!Object.keys(byG).length){el.innerHTML='<div class="empty" style="grid-column:1/-1">لا يوجد مشاركات بعد 📭</div>';return;}
+  el.innerHTML=Object.entries(byG).map(([g,ms])=>{
+    const l=leader(+g);
+    const mems=ms.sort((a,b)=>a.num-b.num);
+    return`<div class="group-card">
+      <div class="group-num">${g}</div>
+      <div class="group-name-badge">${groupName(+g)}</div>
+      <div class="leader-badge">⭐ القائدة: ${mems.find(m=>m.num===l)?.name||`رقم ${l}`}</div>
+      <div style="margin-top:.75rem">${mems.map(m=>`<div class="member-li${m.num===l?' leader':''}">${m.num}. ${m.name} — ${m.spec}</div>`).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+function loadAdmin(){
+  const d=db();
+  const entries=Object.values(d.p).sort((a,b)=>a.group-b.group||a.name.localeCompare(b.name,'ar'));
+  const total=entries.length;
+  const users=Object.values(d.u).length;
+  document.getElementById('adminCount').textContent=`${total} برومت | ${users} مشاركة`;
+  const el=document.getElementById('adminGrid');
+  if(!entries.length&&!Object.keys(d.u).length){el.innerHTML='<div class="empty">لا توجد بيانات بعد 📭</div>';return;}
+
+  // Build map: group → members (registered users)
+  const byG={};
+  // First add all registered users (even without prompts)
+  Object.values(d.u).forEach(u=>{
+    if(!byG[u.group])byG[u.group]={members:[],prompts:[]};
+    byG[u.group].members.push(u);
+  });
+  entries.forEach(e=>{
+    if(!byG[e.group])byG[e.group]={members:[],prompts:[]};
+    byG[e.group].prompts.push(e);
+  });
+
+  el.innerHTML=Object.entries(byG).sort((a,b)=>+a[0]-+b[0]).map(([g,data])=>`
+    <div style="margin-bottom:2.5rem">
+      <div class="admin-grp-title" style="display:flex;align-items:center;justify-content:space-between">
+        <span>${groupName(+g)} — المجموعة ${g}</span>
+        <span style="font-size:.8rem;color:var(--muted);font-weight:400">${data.members.length} مشاركة | ${data.prompts.length} برومت</span>
+      </div>
+
+      ${data.members.length?`
+      <div style="margin-bottom:1rem;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:1rem">
+        <div style="font-size:.8rem;color:var(--muted);margin-bottom:.6rem;font-weight:600">👤 المشاركات المسجّلات</div>
+        ${data.members.sort((a,b)=>a.num-b.num).map(m=>`
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:.45rem 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+            <span style="font-size:.88rem;color:var(--text)">${m.num}. ${m.name}${m.isLeader?' ⭐':''} <span style="color:var(--muted)">— ${m.spec}</span></span>
+            <button class="btn-del-user" onclick="confirmAction('delUser',${m.num},'${m.name.replace(/'/g,"\\'")}')">🗑️ حذف</button>
+          </div>`).join('')}
+      </div>`:''}
+
+      ${data.prompts.map(m=>`
+        <div class="admin-entry" id="entry-${m.name.replace(/\s/g,'_')}">
+          <div class="admin-entry-hd">
+            <span class="admin-entry-name">${m.name}${m.isLeader?' ⭐':''}</span>
+            <span class="admin-entry-meta">${m.spec} · ${new Date(m.ts).toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'})}</span>
+          </div>
+          <div class="admin-entry-prompt" id="prompt-view-${m.name.replace(/\s/g,'_')}">${m.prompt}</div>
+          <textarea class="edit-area" id="prompt-edit-${m.name.replace(/\s/g,'_')}" style="display:none">${m.prompt}</textarea>
+          <div class="crud-bar">
+            <button class="btn-edit" id="btn-edit-${m.name.replace(/\s/g,'_')}" onclick="toggleEdit('${m.name.replace(/\s/g,'_')}','${m.name.replace(/'/g,"\\'")}')">✏️ تعديل</button>
+            <button class="btn-save" id="btn-save-${m.name.replace(/\s/g,'_')}" style="display:none" onclick="saveEdit('${m.name.replace(/\s/g,'_')}','${m.name.replace(/'/g,"\\'")}',${m.num})">💾 حفظ</button>
+            <button class="btn-del" onclick="confirmAction('delPrompt',${m.num},'${m.name.replace(/'/g,"\\'")}')">🗑️ حذف البرومت</button>
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+// ─── CRUD HELPERS ────────────────────────────────────────────────────────────
+function toggleEdit(id,name){
+  const view=document.getElementById('prompt-view-'+id);
+  const area=document.getElementById('prompt-edit-'+id);
+  const btnE=document.getElementById('btn-edit-'+id);
+  const btnS=document.getElementById('btn-save-'+id);
+  const editing=area.style.display==='block';
+  view.style.display=editing?'block':'none';
+  area.style.display=editing?'none':'block';
+  btnE.textContent=editing?'✏️ تعديل':'↩️ إلغاء';
+  btnS.style.display=editing?'none':'inline-block';
+  if(!editing)area.focus();
+}
+
+function saveEdit(id,name,num){
+  const area=document.getElementById('prompt-edit-'+id);
+  const newPrompt=area.value.trim();
+  if(!newPrompt)return toast('البرومت لا يمكن أن يكون فارغًا!');
+  const d=db();
+  if(d.p[num]){d.p[num].prompt=newPrompt;d.p[num].ts=Date.now();save(d);}
+  toast('تمّ الحفظ بنجاح ✅');
+  loadAdmin();
+}
+
+let _pendingAction=null;
+function confirmAction(type,num,name){
+  const modal=document.getElementById('confirmModal');
+  const msgs={
+    delPrompt:{emoji:'🗑️',title:'حذف البرومت',msg:`هل تريدين حذف برومت "${name}"؟ لا يمكن التراجع.`},
+    delUser:{emoji:'👤',title:'حذف المشاركة',msg:`هل تريدين حذف "${name}" من الورشة؟ سيتم حذف تسجيلها وبرومتها.`},
+    clearAll:{emoji:'⚠️',title:'مسح جميع البيانات',msg:'سيتم حذف جميع المشاركات والبرومتات. هذا الإجراء لا يمكن التراجع عنه!'}
+  };
+  const m=msgs[type];
+  document.getElementById('confirmEmoji').textContent=m.emoji;
+  document.getElementById('confirmTitle').textContent=m.title;
+  document.getElementById('confirmMsg').textContent=m.msg;
+  _pendingAction={type,num,name};
+  modal.classList.add('open');
+  document.getElementById('confirmYesBtn').onclick=()=>execAction();
+}
+
+function closeConfirm(){
+  document.getElementById('confirmModal').classList.remove('open');
+  _pendingAction=null;
+}
+
+function execAction(){
+  if(!_pendingAction)return;
+  const {type,num}=_pendingAction;
+  const d=db();
+  if(type==='delPrompt'){delete d.p[num];save(d);toast('تمّ حذف البرومت 🗑️');}
+  else if(type==='delUser'){delete d.u[num];delete d.p[num];save(d);toast('تمّ حذف المشاركة 👤');}
+  else if(type==='clearAll'){save({u:{},p:{}});toast('تمّ مسح جميع البيانات 🗑️');}
+  closeConfirm();
+  loadAdmin();
+}
+
+function exportData(){
+  const d=db();
+  const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='workshop_data_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  toast('تمّ التصدير 📥');
+}
+
+// auto-refresh admin every 10s
+setInterval(()=>{if(document.getElementById('s-admin').classList.contains('show'))loadAdmin();},10000);
+</script>
+</body>
+</html>
